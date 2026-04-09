@@ -5,10 +5,11 @@ langchain-community
 sentence-transformers
 google-generativeai
 paddlepaddle
-paddleocr==2.7.3
 PyMuPDF
 numpy
 fpdf
 pyvis
 networkx
+paddleocr==2.7.3
 opencv-python-headless
+torchvision
