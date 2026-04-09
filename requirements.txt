@@ -9,3 +9,5 @@ paddleocr
 PyMuPDF
 numpy
 fpdf
+pyvis
+networkx
