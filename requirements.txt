@@ -11,3 +11,4 @@ numpy
 fpdf
 pyvis
 networkx
+opencv-python-headless
