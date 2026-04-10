@@ -31,24 +31,24 @@ logger = logging.getLogger(__name__)
 MODEL_HEAVY = "llama-3.3-70b-versatile"
 MODEL_FAST  = "llama-3.1-8b-instant"
 
-# --- INITIALIZE DATABASE & EMBEDDINGS ---
-import stat
+import shutil
+import tempfile
+import os
 
-# --- FIX READ-ONLY PERMISSIONS FOR STREAMLIT CLOUD ---
-db_path = "chroma_db"
-if os.path.exists(db_path):
-    # Forcefully grant read/write/execute permissions to the folder and its files
-    os.chmod(db_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-    for root, dirs, files in os.walk(db_path):
-        for d in dirs:
-            os.chmod(os.path.join(root, d), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-        for f in files:
-            os.chmod(os.path.join(root, f), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+# --- SETUP WRITABLE DATABASE PATH FOR CLOUD ---
+bundled_db_path = os.path.abspath("chroma_db")
+writable_db_path = os.path.join(tempfile.gettempdir(), "finaudit_chroma_db")
 
-# --- INITIALIZE DATABASE & EMBEDDINGS ---
-client = chromadb.PersistentClient(path=db_path)
+if not os.path.exists(writable_db_path):
+    if os.path.exists(bundled_db_path):
+        shutil.copytree(bundled_db_path, writable_db_path)
+    else:
+        os.makedirs(writable_db_path, exist_ok=True)
+
+# --- INITIALIZE DATABASE, EMBEDDINGS, AND GRAPH PATH ---
+client = chromadb.PersistentClient(path=writable_db_path)
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
-GRAPH_PATH = "chroma_db/contract_graph.graphml"
+GRAPH_PATH = os.path.join(writable_db_path, "contract_graph.graphml")
 
 
 # --- GROQ CLIENT FACTORY ---
