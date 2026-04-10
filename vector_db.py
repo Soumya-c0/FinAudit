@@ -32,7 +32,21 @@ MODEL_HEAVY = "llama-3.3-70b-versatile"
 MODEL_FAST  = "llama-3.1-8b-instant"
 
 # --- INITIALIZE DATABASE & EMBEDDINGS ---
-client = chromadb.PersistentClient(path="chroma_db")
+import stat
+
+# --- FIX READ-ONLY PERMISSIONS FOR STREAMLIT CLOUD ---
+db_path = "chroma_db"
+if os.path.exists(db_path):
+    # Forcefully grant read/write/execute permissions to the folder and its files
+    os.chmod(db_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+    for root, dirs, files in os.walk(db_path):
+        for d in dirs:
+            os.chmod(os.path.join(root, d), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+        for f in files:
+            os.chmod(os.path.join(root, f), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+# --- INITIALIZE DATABASE & EMBEDDINGS ---
+client = chromadb.PersistentClient(path=db_path)
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
 GRAPH_PATH = "chroma_db/contract_graph.graphml"
 
