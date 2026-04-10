@@ -134,7 +134,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Fin-Audit AI | Enterprise", layout="wide")
+st.set_page_config(page_title="Fin-Audit AI | Enterprise", layout="wide", initial_sidebar_state="expanded")
 
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "landing"
@@ -297,8 +297,15 @@ elif st.session_state.current_page == "app":
         st.markdown('</div>', unsafe_allow_html=True)
 
         from dotenv import load_dotenv
+        import os
         load_dotenv()
-        groq_key_present = bool(os.getenv("GROQ_API_KEY"))
+        try:
+            if "GROQ_API_KEY" in st.secrets:
+                os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
+            
+        groq_key_present = bool(os.environ.get("GROQ_API_KEY"))
         if groq_key_present:
             st.success("✅ Groq API Key loaded from .env")
         else:

@@ -8,10 +8,18 @@ from chromadb.utils import embedding_functions
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from groq import Groq
 from dotenv import load_dotenv
+import streamlit as st
 
 # --- LOAD API KEY FROM .env ---
 load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+try:
+    if "GROQ_API_KEY" in st.secrets:
+        os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+except Exception:
+    pass # Failsafe for when running outside of Streamlit
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
 
 # --- SETUP LOGGING ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
